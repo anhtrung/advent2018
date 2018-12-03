@@ -1,6 +1,8 @@
 import itertools
+import os
 
-with open('input') as f:
+dir = os.path.dirname(os.path.realpath(__file__))
+with open(os.path.join(dir, 'input')) as f:
     input_data = f.read()
 lines = input_data.splitlines()
 print("Part 1: {0}".format(sum(map(int, lines))))
