@@ -1,27 +1,22 @@
 import os
 import numpy as np
+import re
 
-
-def parse_claim(claim):
-    id = claim[1:claim.find(' ')]
-    pos = claim[claim.find('@') + 1:claim.find(':')].split(',')
-    dim = claim[claim.find(':') + 1:].split('x')
-    return pos, dim, id
 
 dir = os.path.dirname(os.path.realpath(__file__))
 with open(os.path.join(dir, 'input')) as f:
     input_data = f.read()
 lines = input_data.splitlines()
 
-fabric = np.zeros((2000, 2000), dtype=int)
+claims = list(map((lambda x: [int(d) for d in re.findall(r'\d+', x)]), lines))
 
-for l in lines:
-    p, d, _ = parse_claim(l)
-    fabric[int(p[0]):int(p[0]) + int(d[0]), int(p[1]):int(p[1]) + int(d[1])] += 1
+fabric = np.zeros((1500, 1500), dtype=int)
+
+for id, x, y, w, h in claims:    
+    fabric[x:x+w, y:y+h] += 1
 
 print("Part 1: " + str((fabric > 1).sum()))
 
-for l in lines:
-    p, d, id = parse_claim(l)
-    if (fabric[int(p[0]):int(p[0]) + int(d[0]), int(p[1]):int(p[1]) + int(d[1])] == 1).all():
+for id, x, y, w, h in claims:
+    if (fabric[x:x+w, y:y+h] == 1).all():
         print("Part 2: " + str(id))
