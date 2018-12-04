@@ -1,8 +1,6 @@
 import os
-import numpy as np
 from datetime import datetime
 from collections import defaultdict
-
 
 dir = os.path.dirname(os.path.realpath(__file__))
 with open(os.path.join(dir, 'input')) as f:
@@ -12,8 +10,7 @@ lines = input_data.splitlines()
 shifts = [(datetime.strptime(l[1:17], '%Y-%m-%d %H:%M'), l[19:]) for l in lines]
 shifts.sort(key=lambda t: t[0])
 
-schedule = np.empty(((shifts[-1][0] - shifts[0][0]).days + 1, 60))
-schedule[:] = np.nan
+elf_stats = defaultdict(lambda: {"minute total": [0]*60})
 
 for s in shifts:
     day_idx = (s[0] - shifts[0][0]).days
@@ -22,23 +19,16 @@ for s in shifts:
     elif s[1] == 'falls asleep':            
         start_sleep = s[0].minute
     else:
-        schedule[day_idx, start_sleep:s[0].minute] = last_elf
+        for m in range(start_sleep, s[0].minute):
+            elf_stats[last_elf]["minute total"][m] += 1
 
-counts = np.array(np.unique(schedule, return_counts = True))
-sleepiest_elf = int(counts[0, np.argmax(counts, axis=1)[1]])
+for elf, stats in elf_stats.items():
+    stats["total minutes"] = sum(stats["minute total"])
+    stats["sleepiest minute count"] = max(stats["minute total"])
+    stats["sleepiest minute"] = stats["minute total"].index(stats["sleepiest minute count"])
 
-sleepy_schedule = schedule == sleepiest_elf
-sleepiest_minute = np.argmax(np.sum(sleepy_schedule, axis=0))
-print("Part 1: " + str(sleepiest_elf*sleepiest_minute))
+sleepiest_elf = max(elf_stats, key=lambda x: elf_stats[x]["total minutes"])
+print("Part 1: " + str(sleepiest_elf*elf_stats[sleepiest_elf]["sleepiest minute"]))
 
-max_minute_count = 0
-elves = counts[0, np.logical_not(np.isnan(counts[0, :]))]
-for elf in elves:
-    elf_schedule = schedule == elf
-    minute_count = np.sum(elf_schedule, axis=0)
-    if np.max(minute_count) > max_minute_count:
-        max_minute_count = np.max(minute_count)
-        sleepiest_elf = int(elf)
-        sleepiest_minute = np.argmax(np.sum(elf_schedule, axis=0))
-
-print("Part 2: " + str(sleepiest_elf*sleepiest_minute))
+sleepiest_elf = max(elf_stats, key=lambda x: elf_stats[x]["sleepiest minute count"])
+print("Part 2: " + str(sleepiest_elf*elf_stats[sleepiest_elf]["sleepiest minute"]))
