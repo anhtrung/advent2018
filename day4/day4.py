@@ -31,3 +31,14 @@ sleepy_schedule = schedule == sleepiest_elf
 sleepiest_minute = np.argmax(np.sum(sleepy_schedule, axis=0))
 print("Part 1: " + str(sleepiest_elf*sleepiest_minute))
 
+max_minute_count = 0
+elves = counts[0, np.logical_not(np.isnan(counts[0, :]))]
+for elf in elves:
+    elf_schedule = schedule == elf
+    minute_count = np.sum(elf_schedule, axis=0)
+    if np.max(minute_count) > max_minute_count:
+        max_minute_count = np.max(minute_count)
+        sleepiest_elf = int(elf)
+        sleepiest_minute = np.argmax(np.sum(elf_schedule, axis=0))
+
+print("Part 2: " + str(sleepiest_elf*sleepiest_minute))
