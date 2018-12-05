@@ -2,15 +2,14 @@ import os
 import string
 
 def react(poly):
-    i = 0
-    while True:
-        if i == len(poly) - 1:
-            return len(poly)
-        if poly[i].lower() == poly[i+1].lower() and poly[i].islower() != poly[i+1].islower():
-            poly = poly[:i] + poly[i+2:]
-            i = max(0, i - 1)
+    reacted = []
+    for c in poly:
+        if reacted and reacted[-1].lower() == c.lower() and reacted[-1].islower() != c.islower():
+            reacted.pop()
         else:
-            i += 1
+            reacted.append(c)
+    return reacted
+
             
 dir = os.path.dirname(os.path.realpath(__file__))
 with open(os.path.join(dir, 'input')) as f:
@@ -19,13 +18,11 @@ with open(os.path.join(dir, 'input')) as f:
 poly = input_data.strip()
 
 part1 = react(poly)
-print("Part 1: " + str(part1))
+
+print("Part 1: " + str(len(part1)))
 
 alpha = string.ascii_lowercase[:]
 
-counts = {}
-for letter in alpha:
-    poly = input_data.strip().replace(letter, '').replace(letter.upper(), '')
-    counts[letter] = react(poly)
+results = map((lambda x: len(react(''.join(part1).replace(x.lower(), '').replace(x.upper(), '')))), alpha)
 
-print("Part 2: " + str(min(counts.values())))
+print("Part 2: " + str(min(results)))
