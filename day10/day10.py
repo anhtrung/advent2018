@@ -8,35 +8,27 @@ with open(os.path.join(dir, 'input')) as f:
     input_data = f.read()
 
 lines = input_data.splitlines()
+max_time = 50000
 
-points = np.zeros((len(lines), 4))
+points = np.zeros((max_time, len(lines), 2), dtype=int)
+times = np.arange(0, max_time, 1)
 
 for i, line in enumerate(lines):
     x0 = int(line[10:16])
     y0 = int(line[17:24])
     vx = int(line[36:38])
     vy = int(line[39:42])
-    points[i] = [x0, y0, vx, vy]
+    points[:, i, 0] = x0 + times*vx
+    points[:, i, 1] = y0 + times*vy
 
-fig, ax = plt.subplots()
-xdata, ydata = [], []
-ln, = plt.plot([], [], 'r.', animated=True)
-plt.axis('equal')
+points_range = np.abs(np.max(points[:, :, :], axis=1) - np.min(points[:, :, :], axis=1))
+min_spread = np.argmin(points_range, axis=0)
 
-def init():
-    ax.set_xlim(100, 200)
-    ax.set_ylim(-250, -50)
-    return ln,
-
-def update(frame):
-    xdata = points[:, 0] + frame*points[:, 2]
-    ydata = - (points[:, 1] + frame*points[:, 3])
-    ln.set_data(xdata, ydata)
-    return ln,
-
-ani = FuncAnimation(fig, update, frames=np.linspace(10005, 10025, 20, endpoint=False), 
-                    init_func=init, blit=True, interval=1000)
-plt.show()
+for t in min_spread:
+    print(t)
+    plt.plot(points[t, :, 0], - points[t, :, 1], 'r.')
+    plt.axis('equal')
+    plt.show()
 
     
 
