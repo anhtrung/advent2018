@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
 
 dir = os.path.dirname(os.path.realpath(__file__))
 with open(os.path.join(dir, 'input')) as f:
@@ -29,7 +28,3 @@ for t in min_spread:
     plt.plot(points[t, :, 0], - points[t, :, 1], 'r.')
     plt.axis('equal')
     plt.show()
-
-    
-
-
