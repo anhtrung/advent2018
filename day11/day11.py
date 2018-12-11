@@ -22,3 +22,16 @@ ind = np.unravel_index(np.argmax(total_power, axis=None), total_power.shape)
 
 print(f"Part 1: {ind[0] + 1},{ind[1] + 1}")
 
+max_square_side = 300
+total_total_power = np.zeros((x_coords.size, y_coords.size, max_square_side))
+
+for s in range(1, max_square_side + 1):
+    print(s)
+    for x in range(x_coords.size - s + 1):
+        for y in range(y_coords.size - s + 1):
+            total_total_power[x, y, s - 1] = np.sum(fuel_cells[x:x+s, y:y+s])
+
+ind = np.unravel_index(np.argmax(total_total_power, axis=None), total_total_power.shape)
+
+print(f"Part 2: {ind[0] + 1},{ind[1] + 1},{ind[2] + 1}")
+
