@@ -54,21 +54,13 @@ def eqrr(args, regs):
 
 all_ops = [addr, addi, mulr, muli, banr, bani, borr, bori, setr, seti, gtir, gtri, gtrr, eqir, eqri, eqrr]
 
-def missing_number(limit, check_set):
-    for i in range(limit):
-        if i not in check_set:
-            return i
-    assert False
-
-
 samples = []
 program = []
 adding_sample = False
 for line in puzzle_input:
     if line.startswith("Before"):
         adding_sample = True
-        sample = {}
-        sample["before"] = list(map((lambda x: int(x.strip())), line[9:19].split(",")))
+        sample = {"before": list(map((lambda x: int(x.strip())), line[9:19].split(",")))}
     elif line.startswith("After"):
         sample["after"] = list(map((lambda x: int(x.strip())), line[9:19].split(",")))
         samples.append(sample)
@@ -87,7 +79,7 @@ for line in puzzle_input:
 
 total = 0
 opcode_idx_elim = {}
-for x, s in enumerate(samples):
+for s in samples:
     correct_result = 0
     for idx, op in enumerate(all_ops):
         regs = list(s["before"])
@@ -103,23 +95,19 @@ for x, s in enumerate(samples):
 
 print("Part 1: " + str(total))
 
+opcode_idx_options = {}
 for opcode in opcode_idx_elim:
-    opcode_idx_elim[opcode] = set(opcode_idx_elim[opcode])
+    opcode_idx_options[opcode] = [op for op in range(len(all_ops)) if op not in opcode_idx_elim[opcode]]
 
 opcode_mapping = {} # key is opcode in program, val is index in all_ops
 eliminating = True
-while eliminating:
+while len(opcode_mapping) != len(all_ops):
     for idx in range(len(all_ops)):
-        if len(opcode_mapping) == len(all_ops):
-            eliminating = False
-            break
-        if idx in opcode_mapping:
-            continue
-        if len(opcode_idx_elim[idx]) == len(all_ops) - 1:
-            opcode_mapping[idx] = missing_number(len(all_ops), opcode_idx_elim[idx])
-            for jdx in range(len(opcode_idx_elim)):
+        if len(opcode_idx_options[idx]) == 1 and idx not in opcode_mapping:
+            opcode_mapping[idx] = opcode_idx_options[idx][0]
+            for jdx in range(len(opcode_idx_options)):
                 if jdx != idx:
-                    opcode_idx_elim[jdx].add(opcode_mapping[idx])
+                    opcode_idx_options[jdx] = [kdx for kdx in opcode_idx_options[jdx] if kdx != opcode_mapping[idx]]
             break
 
 program_registers = [0, 0, 0, 0]
@@ -127,4 +115,4 @@ program_registers = [0, 0, 0, 0]
 for p in program:
     all_ops[opcode_mapping[p["opcode"]]](p["args"], program_registers)
 
-print(program_registers)
+print("Part 2: " + str(program_registers[0]))
